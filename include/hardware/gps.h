@@ -702,6 +702,87 @@ typedef struct {
     void (*update_network_availability) (int avaiable, const char* apn);
 } AGpsRilInterface;
 
+ /**
+  * Extended interface for GPS Measurements support.
+  */
+ typedef struct {
+  /** Set to sizeof(GpsMeasurementInterface) */
+  size_t size;
+ 
+  /**
+  * Initializes the interface and registers the callback routines with the HAL.
+  * After a successful call to 'init' the HAL must begin to provide updates at its own phase.
+  *
+  * Status:
+  * GPS_MEASUREMENT_OPERATION_SUCCESS
+  * GPS_MEASUREMENT_ERROR_ALREADY_INIT - if a callback has already been registered without a
+  * corresponding call to 'close'
+  * GPS_MEASUREMENT_ERROR_GENERIC - if any other error occurred, it is expected that the HAL
+  * will not generate any updates upon returning this error code.
+  */
+  int (*init) (GpsMeasurementCallbacks* callbacks);
+ 
+  /**
+  * Stops updates from the HAL, and unregisters the callback routines.
+  * After a call to stop, the previously registered callbacks must be considered invalid by the
+  * HAL.
+  * If stop is invoked without a previous 'init', this function should perform no work.
+  */
+  void (*close) ();
+ 
+ } GpsMeasurementInterface;
+
+typedef struct {
+  /** Set to sizeof(GpsNavigationMessageInterface) */
+  size_t size;
+ 
+  /**
+  * Initializes the interface and registers the callback routines with the HAL.
+  * After a successful call to 'init' the HAL must begin to provide updates as they become
+  * available.
+  *
+  * Status:
+  * GPS_NAVIGATION_MESSAGE_OPERATION_SUCCESS
+  * GPS_NAVIGATION_MESSAGE_ERROR_ALREADY_INIT - if a callback has already been registered
+  * without a corresponding call to 'close'.
+  * GPS_NAVIGATION_MESSAGE_ERROR_GENERIC - if any other error occurred, it is expected that
+  * the HAL will not generate any updates upon returning this error code.
+  */
+  int (*init) (GpsNavigationMessageCallbacks* callbacks);
+ 
+  /**
+  * Stops updates from the HAL, and unregisters the callback routines.
+  * After a call to stop, the previously registered callbacks must be considered invalid by the
+  * HAL.
+  * If stop is invoked without a previous 'init', this function should perform no work.
+  */
+  void (*close) ();
+ 
+ } GpsNavigationMessageInterface;
+
+ /**
+  * Interface for passing GNSS configuration contents from platform to HAL.
+  */
+ typedef struct {
+  /** Set to sizeof(GnssConfigurationInterface) */
+  size_t size;
+ 
+  /**
+  * Deliver GNSS configuration contents to HAL.
+  * Parameters:
+  * config_data - a pointer to a char array which holds what usually is expected from
+  file(/etc/gps.conf), i.e., a sequence of UTF8 strings separated by '\n'.
+  * length - total number of UTF8 characters in configuraiton data.
+  *
+  * IMPORTANT:
+  * GPS HAL should expect this function can be called multiple times. And it may be
+  * called even when GpsLocationProvider is already constructed and enabled. GPS HAL
+  * should maintain the existing requests for various callback regardless the change
+  * in configuration data.
+  */
+  void (*configuration_update) (const char* config_data, int32_t length);
+ } GnssConfigurationInterface;
+
 /**
  * GPS Geofence.
  *      There are 3 states associated with a Geofence: Inside, Outside, Unknown.
