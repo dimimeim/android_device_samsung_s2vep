@@ -783,6 +783,18 @@ typedef struct {
   void (*configuration_update) (const char* config_data, int32_t length);
  } GnssConfigurationInterface;
 
+ typedef struct {
+  /** set to sizeof(GpsMeasurementCallbacks) */
+  size_t size;
+  gps_measurement_callback measurement_callback;
+ } GpsMeasurementCallbacks;
+
+ typedef struct {
+  /** set to sizeof(GpsNavigationMessageCallbacks) */
+  size_t size;
+  gps_navigation_message_callback navigation_message_callback;
+ } GpsNavigationMessageCallbacks;
+ 
 /**
  * GPS Geofence.
  *      There are 3 states associated with a Geofence: Inside, Outside, Unknown.
